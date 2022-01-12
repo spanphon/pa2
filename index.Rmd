@@ -1,0 +1,316 @@
+---
+title: "Programming assignment 2"
+output: 
+  html_document: 
+    number_sections: yes
+    theme: spacelab
+    toc: yes
+    highlight: tango
+---
+
+**Topics**: Github, Rmarkdown, RStudio projects, Praat
+
+# Overview
+
+In this programming assignment you will focus on getting data from Praat using 
+more advanced programming methods (scripts, loops). 
+Specifically, you will make recordings, segment them, and calculate metrics 
+related to lexical stress. 
+Next, you will save the data, load it into `R`, analyze it and plot it using 
+`ggplot2`. 
+You will write a reproducible report using `RMarkdown` that will be hosted on 
+`github`. 
+
+**Assigned**: Week 7  
+**Due**: Thursday, 3/12 before 5pm
+
+# Instructions
+
+## Praat
+
+1. Get some data:
+	- Record a new sound object named `stim`. 
+	While recording, repeat the following word pairs (hint: leave about 1 sec 
+	between each word): 
+		- pinto/pintó
+		- testo/testó
+		- capo/capó
+		- quemo/quemó
+		- pujo/pujó
+	- Create a textgrid for `stim`: 
+		- The textgrid should contain one tier, an interval tier called `words`
+		- Select the sound object and corresponding textgrid and click 
+		`View & Edit`
+		- Use the `words` tier to mark the beginning and end of each item you 
+		recorded (leave a bit of time before and after)
+		- Inside the item interval, type the name of the item plus `_1` or 
+		`_2` depending on whether the first or second syllable is stressed. 
+		For example, the item `pinto` should be labeled as `pinto_1` and the 
+		item `pintó` should be labeled as `pinto_2`. 
+		(Hint: this should take about 2 or 3 minutes... if it is taking you 
+		longer you are probably doing it wrong)
+	- Create project
+		- Create a directory on your desktop called `pa_2`
+		- Create a subdirectory inside `pa_2` called `scripts`
+		- Create a subdirectory inside `pa_2` called `data`
+		- Create a subdirectory inside `pa_2` called `stim`
+		- Create 2 subdirectories inside `stim` called `master` and `segmented`
+	- Save the sound and textgrid objects: 
+		- inside the `master` folder (i.e., pa_2 > stim > master)
+		- as a .wav file (stim.wav)
+		- as a .TextGrid file (a text file, stim.TextGrid)
+2. Script 1
+	- Copy the following praat code into a new praat script and save it in the 
+	folder `scripts` as `segment_items.praat`:
+
+```
+form Save intervals to small sound files
+	comment Give the folder where to save the sound files:
+	sentence Folder ../stim/segmented/
+endform
+
+soundname$ = selected$ ("TextGrid", 1)
+select TextGrid 'soundname$'
+numberOfIntervals = Get number of intervals... 1
+end_at = numberOfIntervals
+
+files = 0
+intervalstart = 0
+intervalend = 0
+interval = 1
+intnumber = 1 - 1
+intname$ = ""
+intervalfile$ = ""
+endoffile = Get finishing time
+
+for interval from 1 to end_at
+	xxx$ = Get label of interval... 1 interval
+	check = 0
+	if xxx$ = ""
+		check = 1
+	endif
+	if check = 0
+	   files = files + 1
+	endif
+endfor
+
+interval = 1
+textfilename$ = "'folder$'" + "0_" + "'soundname$'" + "_" + "to" + "'files'" + ".txt"
+
+for interval from 1 to end_at
+	select TextGrid 'soundname$'
+	intname$ = ""
+	intname$ = Get label of interval... 1 interval
+	check = 0
+	if intname$ = ""
+		check = 1
+	endif
+	if check = 0
+		intnumber = intnumber + 1
+		intervalstart = Get starting point... 1 interval
+			if intervalstart > 0.01
+				intervalstart = intervalstart - 0.01
+			else
+				intervalstart = 0
+			endif
+	
+		intervalend = Get end point... 1 interval
+			if intervalend < endoffile - 0.01
+				intervalend = intervalend + 0.01
+			else
+				intervalend = endoffile
+			endif
+	
+		select Sound 'soundname$'
+		Extract part... intervalstart intervalend rectangular 1 no
+		intervalfile$ = "'folder$'" + "'intname$'" + ".wav"
+		Write to WAV file... 'intervalfile$'
+		Remove
+		select TextGrid 'soundname$'
+		intname$ = "'intname$'" + "'newline$'"
+		fileappend "'textfilename$'" 'intname$'
+	endif
+endfor
+```
+
+3. Create individual .wav files for each item
+	- Open the `segment_items.praat` script in praat
+	- Select the `stim` item and corresponding textgrid
+	- From the praat script window type `command r` (control on windows) to 
+	run the script
+	- Check the `stim > segmented` folder. 
+	There should be individual wav files for each item (Hint: the files are 
+	named based on info you provided in the interval tiers, you can delete the 
+	wav files, edit the textgrid, and run the script again if necessary)
+4. Segment individual .wav files
+	- For each .wav file in `segmented` do the following: 
+		- open the wav file in praat
+		- create a textgrid with an interval tier named `first_vowel` and a 
+		point tier named `mid_point`
+		- Select the wav file and corresponding textgrid, click view and edit
+		- In the `first_vowel` tier mark the beginning and end of the first 
+		vowel (no need to type anything in the interval)
+		- In the `mid_point` tier mark the (approximate) mid point of the 
+		first vowel (no need to type anything in the mid point)
+		- Save the textgrid as a text file inside the folder `segmented` 
+		(Hint: you should end up with one textgrid for every .wav file. 
+		You have recorded and segmented 10 items, therefore there should be 
+		20 files, plus the `0_stim_to10.txt` info file)
+5. Extract duration (ms), pitch (hz), and intensity (dB)
+	- Examine the praat code below. 
+	
+```
+# Set path to folder where files are
+
+### add code
+path$ = 
+### here ⬆
+
+# Create output file and set header
+sep$ = ","
+
+writeFileLine: "../data/data.csv",
+  ..."info"       + sep$ +
+  ..."durationV"  + sep$ + 
+  ..."f0"         + sep$ +
+  ..."int"
+
+#
+# Prepare loop
+#
+
+# Go to folder where files are located, create list
+Create Strings as file list: "fileList", path$ + "*.wav"
+
+# Select the object fileList
+selectObject: "Strings fileList"
+
+# Count # of files and assign total to 'numFiles'
+numFiles = Get number of strings
+
+#
+# Start loop
+#
+
+for i from 1 to numFiles
+
+	# Select string, read in files
+	select Strings fileList
+	fileName$ = Get string... i
+	prefix$ = fileName$ - ".wav"
+	Read from file... 'path$'/'prefix$'.wav
+	Read from file... 'path$'/'prefix$'.TextGrid
+
+	# Calculate mid-point of vowel
+	vowelStart = Get starting point: 1, 2
+	vowelEnd = Get starting point: 1, 3
+	durationV = vowelEnd - vowelStart
+	mp = Get time of point: 2, 1
+
+    # Get f0 at midpoint
+	select Sound 'prefix$'
+	To Pitch: 0, 75, 600
+	f0 = Get value at time: mp, "Hertz", "Linear"
+
+	# Get intensity at midpoint
+	select Sound 'prefix$'
+	To Intensity: 100, 0, "yes"
+	int = Get value at time: mp, "Cubic"
+
+	# Append data to .csv file
+	fileappend "../data/data.csv" 'prefix$','durationV:2','f0:2','int:2''newline$'
+
+	# Printline for bug fixes (comment out for speed)
+	printline 'prefix$','durationV:2','f0:2','int:2'
+
+	# Clean up
+	select all
+	minus Strings fileList
+	Remove
+endfor
+
+# Clean objects
+select all
+Remove
+```
+<br>
+**Note**
+
+- Notice that it is a simple loop that is incomplete. 
+- You need to finish the loop by adding a line of code between the parts
+where you see: 
+```
+### add code
+
+### here ⬆
+```
+...otherwise it will not run.
+Copy and paste the code into a new praat script. 
+Save it with the name `extract_dur_f0_int.praat` inside the `scripts` folder, 
+then fix it so that it runs. 
+
+<br>
+
+## R/RStudio
+
+6. Turn `pa_2` into an RStudio project
+7. Create a `README.Rmd` file and set the output as `github_document` (see 
+`pa_1` if you don't remember). 
+Save it in the root directory of `pa_2`.
+8. Load the necessary packages and read in the `data.csv` file into R (use an 
+R chunk)
+9. Manipulate the dataframe as necessary so that you can calculate average 
+duration, f0 and intensity as a function of lexical stress (extra points if 
+you can create a plot)
+
+## github
+
+10. Create a github repository for your project (call it `pa_2`). 
+Commit changes and push them to github. 
+Create a new issue and tag me (@jvcasillas)
+
+# Evaluation
+
+This is programming assignment 2 of 4. 
+It is worth 10 of the 40 possible points. 
+In order to receive full credit you must complete steps 1-10 above, and follow 
+all the instructions.
+
+|                 Task                             | Points |
+| :----------------------------------------------- | -----: |
+| Create the described project structure           |    0.5 |
+| Create master stim wav and textgrid files        |    0.5 |
+| Segment master file for individual items         |      1 |
+| Correctly segment individual items               |      1 |
+| Fix loop and extract data                        |      1 |
+| Create an RStudio project                        |      1 |
+| Create an Rmarkdown README file                  |      1 |
+| Calculate duration, intensity and F0 averages    |      3 |
+| Create `pa_2` repo                               |    0.5 |
+| Commit and push to repo, tag me                  |    0.5 |
+| **Total**                                        |     10 |
+
+</br></br></br>
+
+# Tips
+
+- In order to successfully complete this assignment you have to pay special 
+attention to the naming conventions and directory structure outlined in the 
+instructions. 
+Praat and R are picky regarding special characters and capitalized characters. 
+This is annoying, but ultimately important. 
+Basically you just have to make sure you follow the instructions. 
+- Regarding praat scripting: It can take a lot of time to get decent at 
+programming (in Praat, R, or any other language). 
+Don't get too frustrated. 
+I encourage you to spend time thinking about the scripts.
+Try to follow them line by line to understand what they do. 
+Make note of things you don't understand at all and things that make sense. 
+Change things in the scripts (break them) and try to make them do something 
+different.
+Ask your classmates to explain what they do and don't understand. 
+It gets easier, but only if you work at understanding why the code works. 
+
+</br></br></br>
+
+
