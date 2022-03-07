@@ -12,17 +12,13 @@ output:
 
 # Overview
 
-In this programming assignment you will focus on getting data from Praat using 
-more advanced programming methods (scripts, loops). 
-Specifically, you will make recordings, segment them, and calculate metrics 
-related to lexical stress. 
-Next, you will save the data, load it into `R`, analyze it and plot it using 
-`ggplot2`. 
-You will write a reproducible report using `RMarkdown` that will be hosted on 
-`github`. 
+In this programming assignment you will focus on getting data from Praat using more advanced programming methods (scripts, loops). 
+Specifically, you will make recordings, segment them, and calculate metrics related to lexical stress. 
+Next, you will save the data, load it into `R`, analyze it and plot it using `ggplot2`. 
+You will write a reproducible report using `RMarkdown` that will be hosted on `github`. 
 
 **Assigned**: Week 7  
-**Due**: Thursday, 3/12 before 5pm
+**Due**: Monday, 3/21 before 5pm
 
 # Instructions
 
@@ -246,8 +242,7 @@ where you see:
 ```
 ...otherwise it will not run.
 Copy and paste the code into a new praat script. 
-Save it with the name `extract_dur_f0_int.praat` inside the `scripts` folder, 
-then fix it so that it runs. 
+Save it with the name `extract_dur_f0_int.praat` inside the `scripts` folder, then fix it so that it runs. 
 
 <br>
 
@@ -294,20 +289,16 @@ all the instructions.
 
 # Tips
 
-- In order to successfully complete this assignment you have to pay special 
-attention to the naming conventions and directory structure outlined in the 
-instructions. 
+- In order to successfully complete this assignment you have to pay special  attention to the naming conventions and directory structure outlined in the instructions.
 Praat and R are picky regarding special characters and capitalized characters. 
 This is annoying, but ultimately important. 
 Basically you just have to make sure you follow the instructions. 
-- Regarding praat scripting: It can take a lot of time to get decent at 
-programming (in Praat, R, or any other language). 
+- Regarding praat scripting: It can take a lot of time to get decent at  programming (in Praat, R, or any other language).
 Don't get too frustrated. 
 I encourage you to spend time thinking about the scripts.
 Try to follow them line by line to understand what they do. 
 Make note of things you don't understand at all and things that make sense. 
-Change things in the scripts (break them) and try to make them do something 
-different.
+Change things in the scripts (break them) and try to make them do something  different.
 Ask your classmates to explain what they do and don't understand. 
 It gets easier, but only if you work at understanding why the code works. 
 
