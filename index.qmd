@@ -1,11 +1,11 @@
 ---
 title: "Programming assignment 2"
-output: 
-  html_document: 
-    number_sections: yes
+format: 
+  html:
     theme: spacelab
-    toc: yes
-    highlight: tango
+toc: true
+number-sections: false
+highlight-style: monokai
 ---
 
 **Topics**: Github, Rmarkdown, RStudio projects, Praat
@@ -18,7 +18,7 @@ Next, you will save the data, load it into `R`, analyze it and plot it using `gg
 You will write a reproducible report using `RMarkdown` that will be hosted on `github`. 
 
 **Assigned**: Week 7  
-**Due**: Monday, 3/21 before 5pm
+**Due**: Monday, 3/18 before 5pm
 
 # Instructions
 
@@ -59,7 +59,7 @@ You will write a reproducible report using `RMarkdown` that will be hosted on `g
 	- Copy the following praat code into a new praat script and save it in the 
 	folder `scripts` as `segment_items.praat`:
 
-```
+```r
 form Save intervals to small sound files
 	comment Give the folder where to save the sound files:
 	sentence Folder ../stim/segmented/
@@ -155,7 +155,7 @@ endfor
 5. Extract duration (ms), pitch (hz), and intensity (dB)
 	- Examine the praat code below. 
 	
-```
+```r
 # Set path to folder where files are
 
 ### add code
