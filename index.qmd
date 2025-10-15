@@ -18,7 +18,7 @@ Next, you will save the data, load it into `R`, analyze it and plot it using `gg
 You will write a reproducible report using `RMarkdown` that will be hosted on `github`. 
 
 **Assigned**: Week 7  
-**Due**: Monday, 3/18 before 5pm
+**Due**: Thursday, 10/23 before 5pm
 
 # Instructions
 
